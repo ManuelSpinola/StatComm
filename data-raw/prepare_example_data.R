@@ -69,7 +69,7 @@ validate_and_save(
   X      = spider_X,
   traits = NULL,
   meta   = list(
-    name        = "Spider communities",
+    name        = "Arañas cazadoras",
     description = "Hunting spider abundances at 28 sites with 6 habitat variables.",
     source      = "mvabund::spider",
     response    = "counts",
@@ -102,7 +102,7 @@ validate_and_save(
   X      = fungi_X,
   traits = NULL,
   meta   = list(
-    name        = "Fungi communities",
+    name        = "Comunidad de hongos",
     description = "Presence/absence of fungi species with environmental predictors.",
     source      = "gllvm::fungi",
     response    = "binary",
@@ -118,35 +118,46 @@ validate_and_save(
 
 
 # =============================================================================
-# 3. MICROBIOME  (gllvm)
+# 3. MICROBIALDATA  (gllvm)
 #    High-dimensional microbial count data
 #    Response type: counts (often overdispersed)
 # =============================================================================
-data(microbiome, package = "gllvm")
+data(microbialdata, package = "gllvm")
 
-microbiome_Y <- as.data.frame(microbiome$Y)
-microbiome_X <- as.data.frame(microbiome$X)
+# microbialdata: $Y = OTU counts, $Xenv = environmental variables
+microbiome_Y <- as.data.frame(microbialdata$Y)
+microbiome_X <- as.data.frame(microbialdata$Xenv)
 
-rownames(microbiome_Y) <- rownames(microbiome_X) <- paste0("sample", seq_len(nrow(microbiome_Y)))
+# Preserve factor structure (Region, Site, Soiltype already factors)
+microbiome_X$Region   <- factor(microbiome_X$Region)
+microbiome_X$Site     <- factor(microbiome_X$Site)
+microbiome_X$Soiltype <- factor(microbiome_X$Soiltype)
+
+rownames(microbiome_Y) <- rownames(microbiome_X) <- rownames(microbialdata$Xenv)
 
 validate_and_save(
   Y      = microbiome_Y,
   X      = microbiome_X,
   traits = NULL,
   meta   = list(
-    name        = "Microbiome",
-    description = "High-dimensional microbial community counts with host/environmental predictors.",
-    source      = "gllvm::microbiome",
+    name        = "Comunidad microbiana",
+    description = "High-dimensional microbial OTU counts with environmental predictors.",
+    source      = "gllvm::microbialdata",
     response    = "counts",
     family_suggestion = "negative.binomial",
     n_sites     = nrow(microbiome_Y),
     n_species   = ncol(microbiome_Y),
     n_predictors = ncol(microbiome_X),
     has_traits  = FALSE,
-    reference   = "Tibshirani et al."
+    predictor_types = list(
+      continuous = c("SOM", "pH", "Phosp"),
+      factor     = c("Region", "Site", "Soiltype")
+    ),
+    reference   = "Tedersoo et al."
   ),
   filename = "microbiome.rds"
 )
+
 
 
 # =============================================================================
@@ -175,7 +186,7 @@ validate_and_save(
   X      = mite_X,
   traits = NULL,
   meta   = list(
-    name        = "Oribatid mites",
+    name        = "Ácaros oribátidos",
     description = "Oribatid mite abundances at 70 sites with continuous and factor predictors.",
     source      = "vegan::mite + vegan::mite.env",
     response    = "counts",
@@ -221,7 +232,7 @@ validate_and_save(
   X      = doubs_X,
   traits = NULL,
   meta   = list(
-    name        = "Doubs river fish",
+    name        = "Peces río Doubs",
     description = "Fish community along the Doubs river (France/Switzerland) with physicochemical variables.",
     source      = "ade4::doubs",
     response    = "counts",
@@ -236,6 +247,68 @@ validate_and_save(
 )
 
 
+
+
+# =============================================================================
+# 6. BEETLE  (gllvm)
+#    87 sites x 68 ground beetle species
+#    22 environmental predictors (continuous + factors)
+#    22 species traits (morphological + functional) — fourth-corner ready
+#    Response type: counts
+# =============================================================================
+data(beetle, package = "gllvm")
+
+beetle_Y <- as.data.frame(beetle$Y)
+beetle_X <- as.data.frame(beetle$X)
+beetle_TR <- as.data.frame(beetle$TR)
+
+# beetle$X has numeric rownames — align with Y site codes
+rownames(beetle_X) <- rownames(beetle_Y)
+
+# Preserve factor structure in X
+beetle_X$SiteCode <- factor(beetle_X$SiteCode)
+beetle_X$Landuse  <- factor(beetle_X$Landuse)
+beetle_X$Grid     <- factor(beetle_X$Grid)
+beetle_X$Area     <- factor(beetle_X$Area)
+
+# Traits: set rownames = species names (colnames of Y)
+rownames(beetle_TR) <- colnames(beetle_Y)
+
+# Remove SPECIES and CODE columns from traits (metadata, not traits per se)
+beetle_TR <- beetle_TR[, !names(beetle_TR) %in% c("SPECIES", "CODE")]
+
+validate_and_save(
+  Y      = beetle_Y,
+  X      = beetle_X,
+  traits = beetle_TR,
+  meta   = list(
+    name        = "Escarabajos (ground beetles)",
+    description = "Ground beetle assemblages at 87 grassland sites with environmental and species trait data.",
+    source      = "gllvm::beetle",
+    response    = "counts",
+    family_suggestion = "negative.binomial",
+    n_sites      = nrow(beetle_Y),
+    n_species    = ncol(beetle_Y),
+    n_predictors = ncol(beetle_X),
+    has_traits   = TRUE,
+    n_traits     = ncol(beetle_TR),
+    predictor_types = list(
+      continuous = c("Texture", "Org", "pH", "AvailP", "AvailK", "Moist",
+                     "Bare", "Litter", "Bryophyte", "Plants.m2", "Canopyheight",
+                     "Stemdensity", "Biom_l5", "Biom_m5", "Reprobiom",
+                     "Elevation", "Management", "Samplingyear"),
+      factor     = c("SiteCode", "Landuse", "Grid", "Area")
+    ),
+    trait_types = list(
+      continuous = c("LYW", "LAL", "LPW", "LPH", "LEW", "LFL",
+                     "LTR", "LRL", "LFW", "LTL"),
+      factor     = c("CLG", "CLB", "WIN", "PRS", "OVE", "FOA",
+                     "DAY", "BRE", "EME", "ACT")
+    ),
+    reference   = "Ribera et al. (2001)"
+  ),
+  filename = "beetle.rds"
+)
 # =============================================================================
 # Summary
 # =============================================================================

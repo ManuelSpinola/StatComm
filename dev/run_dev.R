@@ -1,15 +1,14 @@
-# Set options here
-options(golem.app.prod = FALSE) # TRUE = production mode, FALSE = development mode
+# ============================================================
+# dev/run_dev.R — Correr StatComm en modo desarrollo
+# ============================================================
 
-# Comment this if you don't want the app to be served on a random port
-options(shiny.port = httpuv::randomPort())
+# Detach package if loaded
+if ("StatComm" %in% (.packages())) {
+  pkgload::unload("StatComm")
+}
 
-# Detach all loaded packages and clean your environment
-golem::detach_all_attached()
-# rm(list=ls(all.names = TRUE))
-
-# Document and reload your package
-golem::document_and_reload()
+# Load all
+pkgload::load_all(export_all = FALSE, helpers = FALSE, attach_testthat = FALSE)
 
 # Run the application
 run_app()

@@ -1,162 +1,203 @@
 # =============================================================================
-# StatCoom — mod_upload.R
+# mod_upload.R — Carga de datos para StatComm
+# StatComm · StatSuite · Manuel Spínola · ICOMVIS · UNA
 # =============================================================================
-# Data input module: example datasets + user upload (Y, X, traits)
-#
-# Exports:
+# Exporta:
 #   mod_upload_ui(id)
-#   mod_upload_server(id)  →  returns reactive list: data()
-#                              with $Y, $X, $traits, $meta, $source
+#   mod_upload_server(id)  →  reactivo con $Y, $X, $traits, $meta, $source
 # =============================================================================
 
-# --------------------------------------------------------------------------- #
-#  UI                                                                          #
-# --------------------------------------------------------------------------- #
-
+# ── UI ────────────────────────────────────────────────────────────────────────
 mod_upload_ui <- function(id) {
   ns <- NS(id)
 
   tagList(
-    # ---- Source selector ----
+
     div(
-      class = "upload-source-selector",
-      radioButtons(
-        inputId  = ns("data_source"),
-        label    = "Data source",
-        choices  = c(
-          "Use an example dataset" = "example",
-          "Upload my own data"     = "user"
-        ),
-        selected = "example",
-        inline   = TRUE
+      class = "py-3 px-2",
+      h4(
+        bs_icon("upload", class = "me-2"),
+        "Datos de comunidad",
+        style = paste0("color:", colores$primario, "; font-weight:700;")
+      ),
+      p(
+        class = "text-muted mb-0",
+        "Cargá un conjunto de datos de ejemplo o subí tus propios datos. ",
+        "Los análisis de GLLVM y mrIML compartirán estos datos."
       )
     ),
 
-    hr(),
+    navset_card_tab(
 
-    # ---- Example datasets panel ----
-    conditionalPanel(
-      condition = sprintf("input['%s'] == 'example'", ns("data_source")),
+      # ══════════════════════════════════════════════════════════════════
+      # PESTAÑA 1: Datos de ejemplo
+      # ══════════════════════════════════════════════════════════════════
+      nav_panel(
+        title = tagList(bs_icon("collection", class = "me-1"), "Datos de ejemplo"),
+        card_body(
 
-      selectInput(
-        inputId  = ns("example_choice"),
-        label    = "Select example dataset",
-        choices  = list(
-          "Spider communities (mvabund)"     = "spider",
-          "Fungi — presence/absence (gllvm)" = "fungi",
-          "Microbiome counts (gllvm)"        = "microbiome",
-          "Oribatid mites — mixed predictors (vegan)" = "mites",
-          "Doubs river fish (ade4)"          = "doubs"
-        ),
-        selected = "spider"
+          layout_columns(
+            col_widths = c(4, 8),
+
+            # ── Selector ──────────────────────────────────────────────
+            div(
+              selectInput(
+                inputId  = ns("example_choice"),
+                label    = "Seleccionar conjunto de datos",
+                choices  = list(
+                  "Arañas cazadoras (mvabund)"         = "spider",
+                  "Hongos — presencia/ausencia (gllvm)" = "fungi",
+                  "Comunidad microbiana (gllvm)"        = "microbiome",
+                  "Ácaros oribátidos — predictores mixtos (vegan)" = "mites",
+                  "Peces río Doubs (ade4)"              = "doubs",
+                  "Escarabajos + traits (gllvm)"        = "beetle"
+                ),
+                selected = "spider"
+              ),
+
+              # Tarjeta informativa del dataset seleccionado
+              uiOutput(ns("example_info"))
+            ),
+
+            # ── Vista previa ──────────────────────────────────────────
+            div(
+              uiOutput(ns("preview_ejemplo"))
+            )
+          )
+        )
       ),
 
-      # Dataset info card
-      uiOutput(ns("example_info"))
-    ),
+      # ══════════════════════════════════════════════════════════════════
+      # PESTAÑA 2: Subir mis datos
+      # ══════════════════════════════════════════════════════════════════
+      nav_panel(
+        title = tagList(bs_icon("folder2-open", class = "me-1"), "Subir mis datos"),
+        card_body(
 
-    # ---- User upload panel ----
-    conditionalPanel(
-      condition = sprintf("input['%s'] == 'user'", ns("data_source")),
+          p(class = "text-muted small mb-3",
+            bs_icon("info-circle", class = "me-1"),
+            "Los datos se suben en partes separadas. Los nombres de sitios deben ",
+            "coincidir en nombre y orden entre la matriz de especies (Y) y los ",
+            "predictores (X). Los traits deben tener los nombres de especies como filas."
+          ),
 
-      # --- Species matrix (required) ---
-      div(
-        class = "upload-block required",
-        tags$h5(
-          tags$span(class = "badge-required", "Required"),
-          " Species / Response matrix (Y)"
-        ),
-        tags$p(
-          class = "upload-hint",
-          "Rows = sites, columns = species. First column must be site names."
-        ),
-        fileInput(
-          inputId  = ns("file_Y"),
-          label    = NULL,
-          accept   = c(".csv", ".xlsx", ".xls"),
-          placeholder = "No file selected"
-        ),
-        uiOutput(ns("status_Y"))
-      ),
+          layout_columns(
+            col_widths = c(4, 4, 4),
 
-      # --- Environmental variables (optional) ---
-      div(
-        class = "upload-block optional",
-        tags$h5(
-          tags$span(class = "badge-optional", "Optional"),
-          " Environmental predictors (X)"
-        ),
-        tags$p(
-          class = "upload-hint",
-          "Same row order and site names as Y. Factors will be detected automatically."
-        ),
-        fileInput(
-          inputId  = ns("file_X"),
-          label    = NULL,
-          accept   = c(".csv", ".xlsx", ".xls"),
-          placeholder = "No file selected"
-        ),
-        uiOutput(ns("status_X"))
-      ),
+            # ── Matriz de especies (Y) ─────────────────────────────
+            card(
+              card_header(
+                tagList(
+                  tags$span(
+                    class = "badge me-2",
+                    style = paste0("background:", colores$primario),
+                    "Requerido"
+                  ),
+                  bs_icon("table", class = "me-1"),
+                  "Matriz de especies (Y)"
+                )
+              ),
+              card_body(
+                p(class = "small text-muted",
+                  "Filas = sitios, columnas = especies. ",
+                  "La primera columna debe contener los nombres de sitio."),
+                fileInput(
+                  inputId     = ns("file_Y"),
+                  label       = NULL,
+                  accept      = c(".csv", ".xlsx", ".xls"),
+                  placeholder = "Sin archivo"
+                ),
+                uiOutput(ns("status_Y"))
+              )
+            ),
 
-      # --- Traits (optional) ---
-      div(
-        class = "upload-block optional",
-        tags$h5(
-          tags$span(class = "badge-optional", "Optional"),
-          " Species traits"
-        ),
-        tags$p(
-          class = "upload-hint",
-          "Rows = species (must match column names of Y). Columns = trait variables."
-        ),
-        fileInput(
-          inputId  = ns("file_traits"),
-          label    = NULL,
-          accept   = c(".csv", ".xlsx", ".xls"),
-          placeholder = "No file selected"
-        ),
-        uiOutput(ns("status_traits"))
-      ),
+            # ── Predictores ambientales (X) ────────────────────────
+            card(
+              card_header(
+                tagList(
+                  tags$span(
+                    class = "badge me-2",
+                    style = paste0("background:", colores$secundario),
+                    "Opcional"
+                  ),
+                  bs_icon("sliders", class = "me-1"),
+                  "Predictores (X)"
+                )
+              ),
+              card_body(
+                p(class = "small text-muted",
+                  "Mismo orden y nombres de sitio que Y. ",
+                  "Los factores se detectan automáticamente."),
+                fileInput(
+                  inputId     = ns("file_X"),
+                  label       = NULL,
+                  accept      = c(".csv", ".xlsx", ".xls"),
+                  placeholder = "Sin archivo"
+                ),
+                uiOutput(ns("status_X")),
+                uiOutput(ns("factor_selector"))
+              )
+            ),
 
-      # --- Factor column selector (shown after X is loaded) ---
-      uiOutput(ns("factor_selector")),
+            # ── Traits de especies ─────────────────────────────────
+            card(
+              card_header(
+                tagList(
+                  tags$span(
+                    class = "badge me-2",
+                    style = paste0("background:", colores$secundario),
+                    "Opcional"
+                  ),
+                  bs_icon("diagram-3", class = "me-1"),
+                  "Traits de especies"
+                )
+              ),
+              card_body(
+                p(class = "small text-muted",
+                  "Filas = especies (deben coincidir con columnas de Y). ",
+                  "Columnas = rasgos funcionales o morfológicos."),
+                fileInput(
+                  inputId     = ns("file_traits"),
+                  label       = NULL,
+                  accept      = c(".csv", ".xlsx", ".xls"),
+                  placeholder = "Sin archivo"
+                ),
+                uiOutput(ns("status_traits"))
+              )
+            )
+          ),
 
-      # --- Validation summary ---
-      uiOutput(ns("validation_summary"))
-    ),
+          # ── Validación ─────────────────────────────────────────────
+          uiOutput(ns("validation_summary")),
 
-    hr(),
-
-    # ---- Preview (both modes) ----
-    uiOutput(ns("data_preview"))
+          # ── Vista previa datos usuario ──────────────────────────────
+          uiOutput(ns("preview_usuario"))
+        )
+      )
+    )
   )
 }
 
 
-# --------------------------------------------------------------------------- #
-#  Server                                                                      #
-# --------------------------------------------------------------------------- #
-
+# ── Server ────────────────────────────────────────────────────────────────────
 mod_upload_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    # ---- Path to example data ----
-    extdata_path <- system.file("data", package = "StatCoom")
-    # Fallback for development without installed package
-    if (extdata_path == "") extdata_path <- "inst/data"
+    # ── Ruta a datos de ejemplo ──────────────────────────────────────────────
+    data_path <- system.file("data", package = "StatComm")
+    if (data_path == "") data_path <- "inst/data"
 
-    # ================================================================
-    # EXAMPLE DATASETS
-    # ================================================================
+    # ════════════════════════════════════════════════════════════════════════
+    # DATOS DE EJEMPLO
+    # ════════════════════════════════════════════════════════════════════════
 
     example_data <- reactive({
-      req(input$data_source == "example", input$example_choice)
-      path <- file.path(extdata_path, paste0(input$example_choice, ".rds"))
+      req(input$example_choice)
+      path <- file.path(data_path, paste0(input$example_choice, ".rds"))
       if (!file.exists(path)) {
         showNotification(
-          paste("Example dataset not found:", basename(path)),
+          paste("Conjunto de datos no encontrado:", basename(path)),
           type = "error"
         )
         return(NULL)
@@ -170,89 +211,135 @@ mod_upload_server <- function(id) {
       obj <- example_data()
       req(obj)
       m <- obj$meta
+
       div(
-        class = "dataset-info-card",
-        tags$h6(m$name),
-        tags$p(m$description),
-        tags$small(
-          class = "text-muted",
-          tags$b("Sites: "),     m$n_sites,   " · ",
-          tags$b("Species: "),   m$n_species, " · ",
-          tags$b("Predictors: "), m$n_predictors, " · ",
-          tags$b("Response: "),  m$response,  " · ",
-          tags$b("Source: "),    m$source
+        class = "mt-3 p-3 rounded",
+        style = paste0("background:", colores$fondo,
+                       "; border-left: 4px solid ", colores$primario, ";"),
+        tags$p(class = "fw-bold mb-1",
+               style = paste0("color:", colores$primario), m$name),
+        tags$p(class = "small text-muted mb-2", m$description),
+        tags$p(
+          class = "small mb-1",
+          tags$b("Sitios: "),    m$n_sites,    " · ",
+          tags$b("Especies: "),  m$n_species,  " · ",
+          tags$b("Predictores: "), m$n_predictors
+        ),
+        tags$p(
+          class = "small mb-1",
+          tags$b("Respuesta: "), m$response, " · ",
+          tags$b("Familia sugerida: "), m$family_suggestion
+        ),
+        tags$p(
+          class = "small mb-1",
+          tags$b("Traits: "),
+          if (isTRUE(m$has_traits)) paste0(m$n_traits, " variables") else "No"
         ),
         if (!is.null(m$reference)) {
-          tags$small(class = "text-muted d-block mt-1",
-                     tags$i(m$reference))
+          tags$p(class = "small text-muted fst-italic mb-0", m$reference)
+        }
+      )
+    })
+
+    output$preview_ejemplo <- renderUI({
+      obj <- example_data()
+      req(obj)
+      tagList(
+        tags$p(class = "fw-semibold small mb-1",
+               style = paste0("color:", colores$primario),
+               bs_icon("table", class = "me-1"), "Vista previa — Matriz Y"),
+        div(style = "overflow-x: auto; font-size: 0.82rem;",
+            renderTable(
+              obj$Y[seq_len(min(6, nrow(obj$Y))),
+                    seq_len(min(8, ncol(obj$Y))), drop = FALSE],
+              rownames = TRUE, digits = 0
+            )
+        ),
+        if (!is.null(obj$X)) {
+          tagList(
+            tags$p(class = "fw-semibold small mb-1 mt-3",
+                   style = paste0("color:", colores$primario),
+                   bs_icon("sliders", class = "me-1"), "Vista previa — Predictores X"),
+            div(style = "overflow-x: auto; font-size: 0.82rem;",
+                renderTable(
+                  obj$X[seq_len(min(6, nrow(obj$X))), , drop = FALSE],
+                  rownames = TRUE
+                )
+            )
+          )
+        },
+        if (!is.null(obj$traits)) {
+          tagList(
+            tags$p(class = "fw-semibold small mb-1 mt-3",
+                   style = paste0("color:", colores$primario),
+                   bs_icon("diagram-3", class = "me-1"), "Vista previa — Traits"),
+            div(style = "overflow-x: auto; font-size: 0.82rem;",
+                renderTable(
+                  obj$traits[seq_len(min(6, nrow(obj$traits))),
+                             seq_len(min(6, ncol(obj$traits))), drop = FALSE],
+                  rownames = TRUE
+                )
+            )
+          )
         }
       )
     })
 
 
-    # ================================================================
-    # USER UPLOAD — helpers
-    # ================================================================
+    # ════════════════════════════════════════════════════════════════════════
+    # DATOS DEL USUARIO — helpers
+    # ════════════════════════════════════════════════════════════════════════
 
     read_uploaded_file <- function(file_info) {
       req(file_info)
       ext <- tolower(tools::file_ext(file_info$name))
       tryCatch({
-        df <- switch(ext,
+        switch(ext,
           csv  = read.csv(file_info$datapath,
-                          row.names  = 1,
-                          check.names = FALSE,
+                          row.names        = 1,
+                          check.names      = FALSE,
                           stringsAsFactors = FALSE),
           xlsx = ,
           xls  = readxl::read_excel(file_info$datapath) |>
                    as.data.frame() |>
                    (\(d) { rownames(d) <- d[[1]]; d[, -1, drop = FALSE] })(),
-          stop("Unsupported format: .", ext)
+          stop("Formato no soportado: .", ext)
         )
-        df
       }, error = function(e) {
-        showNotification(paste("Error reading", file_info$name, ":", e$message),
-                         type = "error", duration = 8)
+        showNotification(
+          paste("Error leyendo", file_info$name, ":", e$message),
+          type = "error", duration = 8
+        )
         NULL
       })
     }
 
-    # Auto-detect columns that should be factors in X
     auto_detect_factors <- function(df) {
       sapply(df, function(col) {
-        is.character(col) ||
-        is.factor(col)    ||
+        is.character(col) || is.factor(col) ||
         (is.numeric(col) && length(unique(col)) <= 6 &&
            all(col == as.integer(col), na.rm = TRUE))
       })
     }
 
-    # ---- Reactive: raw uploaded tables ----
     raw_Y      <- reactive(read_uploaded_file(input$file_Y))
     raw_X      <- reactive(read_uploaded_file(input$file_X))
     raw_traits <- reactive(read_uploaded_file(input$file_traits))
 
-
-    # ================================================================
-    # USER UPLOAD — factor column selector
-    # ================================================================
-
+    # ── Factor selector ───────────────────────────────────────────────────────
     output$factor_selector <- renderUI({
       X <- raw_X()
       req(X)
-      auto <- names(which(auto_detect_factors(X)))
+      auto     <- names(which(auto_detect_factors(X)))
       non_auto <- names(X)[!names(X) %in% auto]
-
       if (length(non_auto) == 0) return(NULL)
-
       tagList(
-        tags$h6("Convert additional columns to factors?"),
-        tags$p(class = "upload-hint",
-               "Auto-detected factors: ",
-               if (length(auto) > 0) paste(auto, collapse = ", ") else "none"),
+        tags$p(class = "small text-muted mt-2 mb-1",
+               tags$b("Factores auto-detectados: "),
+               if (length(auto) > 0) paste(auto, collapse = ", ") else "ninguno"),
         checkboxGroupInput(
           inputId  = ns("extra_factors"),
-          label    = "Mark as factor:",
+          label    = "Convertir a factor:",
           choices  = non_auto,
           selected = NULL,
           inline   = TRUE
@@ -260,150 +347,153 @@ mod_upload_server <- function(id) {
       )
     })
 
-
-    # ================================================================
-    # USER UPLOAD — processed X (with factor coercion)
-    # ================================================================
-
     processed_X <- reactive({
       X <- raw_X()
       req(X)
-      auto    <- names(which(auto_detect_factors(X)))
-      manual  <- input$extra_factors %||% character(0)
-      to_fac  <- unique(c(auto, manual))
-      for (col in to_fac) {
+      auto   <- names(which(auto_detect_factors(X)))
+      manual <- input$extra_factors %||% character(0)
+      for (col in unique(c(auto, manual))) {
         if (col %in% names(X)) X[[col]] <- factor(X[[col]])
       }
       X
     })
 
+    # ── Status widgets ────────────────────────────────────────────────────────
+    status_ok <- function(df, label) {
+      if (is.null(df)) return(NULL)
+      div(
+        class = "small mt-1",
+        style = paste0("color:", colores$primario),
+        bs_icon("check-circle", class = "me-1"),
+        sprintf("%s: %d filas × %d columnas", label, nrow(df), ncol(df))
+      )
+    }
 
-    # ================================================================
-    # USER UPLOAD — validation
-    # ================================================================
+    output$status_Y      <- renderUI(status_ok(raw_Y(),       "Y"))
+    output$status_X      <- renderUI(status_ok(processed_X(), "X"))
+    output$status_traits <- renderUI(status_ok(raw_traits(),  "Traits"))
 
+    # ── Validación ────────────────────────────────────────────────────────────
     validation <- reactive({
       Y <- raw_Y()
       if (is.null(Y)) return(list(ok = FALSE, errors = NULL, warnings = NULL))
 
-      errors   <- character(0)
-      warnings <- character(0)
+      errors <- warnings <- character(0)
 
-      # 1. Y must be all numeric
       non_num <- names(Y)[!sapply(Y, is.numeric)]
-      if (length(non_num) > 0) {
-        errors <- c(errors,
-          paste("Y contains non-numeric columns:", paste(non_num, collapse = ", ")))
-      }
+      if (length(non_num) > 0)
+        errors <- c(errors, paste("Y contiene columnas no numéricas:",
+                                  paste(non_num, collapse = ", ")))
 
-      # 2. Y vs X: row names must match
       X <- processed_X()
       if (!is.null(X)) {
         if (!identical(rownames(Y), rownames(X))) {
-          if (setequal(rownames(Y), rownames(X))) {
+          if (setequal(rownames(Y), rownames(X)))
             errors <- c(errors,
-              "Site names in Y and X match but are in different order. Please sort before uploading.")
-          } else {
-            missing_in_X  <- setdiff(rownames(Y), rownames(X))
-            missing_in_Y  <- setdiff(rownames(X), rownames(Y))
-            if (length(missing_in_X) > 0)
-              errors <- c(errors,
-                paste("Sites in Y not found in X:", paste(head(missing_in_X, 5), collapse = ", ")))
-            if (length(missing_in_Y) > 0)
-              errors <- c(errors,
-                paste("Sites in X not found in Y:", paste(head(missing_in_Y, 5), collapse = ", ")))
+              "Los nombres de sitio coinciden pero están en diferente orden entre Y y X.")
+          else {
+            mis_x <- setdiff(rownames(Y), rownames(X))
+            mis_y <- setdiff(rownames(X), rownames(Y))
+            if (length(mis_x) > 0)
+              errors <- c(errors, paste("Sitios en Y no encontrados en X:",
+                                        paste(head(mis_x, 5), collapse = ", ")))
+            if (length(mis_y) > 0)
+              errors <- c(errors, paste("Sitios en X no encontrados en Y:",
+                                        paste(head(mis_y, 5), collapse = ", ")))
           }
         }
       }
 
-      # 3. traits: row names must match species (col names of Y)
-      traits <- raw_traits()
-      if (!is.null(traits)) {
-        if (!identical(rownames(traits), colnames(Y))) {
-          if (setequal(rownames(traits), colnames(Y))) {
+      tr <- raw_traits()
+      if (!is.null(tr)) {
+        if (!identical(rownames(tr), colnames(Y))) {
+          if (setequal(rownames(tr), colnames(Y)))
             errors <- c(errors,
-              "Species names in traits match Y columns but are in different order.")
-          } else {
-            missing_traits <- setdiff(colnames(Y), rownames(traits))
-            extra_traits   <- setdiff(rownames(traits), colnames(Y))
-            if (length(missing_traits) > 0)
-              errors <- c(errors,
-                paste("Species in Y without traits:", paste(head(missing_traits, 5), collapse = ", ")))
-            if (length(extra_traits) > 0)
-              warnings <- c(warnings,
-                paste("Traits for species not in Y (will be ignored):", paste(head(extra_traits, 5), collapse = ", ")))
+              "Los nombres de especie en traits coinciden pero están en diferente orden.")
+          else {
+            mis_tr <- setdiff(colnames(Y), rownames(tr))
+            ext_tr <- setdiff(rownames(tr), colnames(Y))
+            if (length(mis_tr) > 0)
+              errors <- c(errors, paste("Especies sin traits:",
+                                        paste(head(mis_tr, 5), collapse = ", ")))
+            if (length(ext_tr) > 0)
+              warnings <- c(warnings, paste("Traits de especies no en Y (ignorados):",
+                                            paste(head(ext_tr, 5), collapse = ", ")))
           }
         }
       }
 
-      # 4. Warn about zero-sum rows in Y
       zero_sites <- rownames(Y)[rowSums(Y, na.rm = TRUE) == 0]
-      if (length(zero_sites) > 0) {
-        warnings <- c(warnings,
-          paste("Sites with all-zero abundances:", paste(head(zero_sites, 5), collapse = ", ")))
-      }
+      if (length(zero_sites) > 0)
+        warnings <- c(warnings, paste("Sitios con abundancia total cero:",
+                                      paste(head(zero_sites, 5), collapse = ", ")))
 
-      # 5. Warn about zero-sum columns in Y
       zero_spp <- colnames(Y)[colSums(Y, na.rm = TRUE) == 0]
-      if (length(zero_spp) > 0) {
-        warnings <- c(warnings,
-          paste("Species with all-zero records:", paste(head(zero_spp, 5), collapse = ", ")))
-      }
+      if (length(zero_spp) > 0)
+        warnings <- c(warnings, paste("Especies sin registros:",
+                                      paste(head(zero_spp, 5), collapse = ", ")))
 
-      list(
-        ok       = length(errors) == 0,
-        errors   = errors,
-        warnings = warnings
-      )
+      list(ok = length(errors) == 0, errors = errors, warnings = warnings)
     })
-
-
-    # ================================================================
-    # USER UPLOAD — status outputs
-    # ================================================================
-
-    status_widget <- function(df, label) {
-      if (is.null(df)) return(NULL)
-      div(class = "upload-status ok",
-          tags$i(class = "fa fa-check-circle"),
-          sprintf(" %s loaded: %d rows × %d columns", label, nrow(df), ncol(df)))
-    }
-
-    output$status_Y      <- renderUI(status_widget(raw_Y(),      "Y"))
-    output$status_X      <- renderUI(status_widget(processed_X(), "X"))
-    output$status_traits <- renderUI(status_widget(raw_traits(),  "Traits"))
 
     output$validation_summary <- renderUI({
-      req(input$data_source == "user", raw_Y())
+      req(raw_Y())
       v <- validation()
       tagList(
-        if (length(v$errors) > 0) {
-          div(class = "alert alert-danger",
-              tags$b("Errors:"),
-              tags$ul(lapply(v$errors, tags$li)))
-        },
-        if (length(v$warnings) > 0) {
-          div(class = "alert alert-warning",
-              tags$b("Warnings:"),
-              tags$ul(lapply(v$warnings, tags$li)))
-        },
-        if (v$ok && is.null(raw_Y()) == FALSE) {
-          div(class = "alert alert-success",
-              tags$i(class = "fa fa-check"),
-              " Data validated successfully. Ready to use.")
+        if (length(v$errors) > 0)
+          div(class = "alert alert-danger small mt-3",
+              tags$b("Errores:"),
+              tags$ul(class = "mb-0", lapply(v$errors, tags$li))),
+        if (length(v$warnings) > 0)
+          div(class = "alert alert-warning small mt-3",
+              tags$b("Advertencias:"),
+              tags$ul(class = "mb-0", lapply(v$warnings, tags$li))),
+        if (v$ok)
+          div(class = "alert alert-success small mt-3",
+              bs_icon("check-circle", class = "me-1"),
+              "Datos validados correctamente. Listos para analizar.")
+      )
+    })
+
+    output$preview_usuario <- renderUI({
+      v <- validation()
+      req(v$ok, raw_Y())
+      Y <- raw_Y()
+      tagList(
+        tags$hr(),
+        tags$p(class = "fw-semibold small mb-1",
+               style = paste0("color:", colores$primario),
+               bs_icon("table", class = "me-1"), "Vista previa — Matriz Y"),
+        div(style = "overflow-x: auto; font-size: 0.82rem;",
+            renderTable(
+              Y[seq_len(min(6, nrow(Y))), seq_len(min(8, ncol(Y))), drop = FALSE],
+              rownames = TRUE, digits = 0
+            )
+        ),
+        if (!is.null(processed_X())) {
+          X <- processed_X()
+          tagList(
+            tags$p(class = "fw-semibold small mb-1 mt-3",
+                   style = paste0("color:", colores$primario),
+                   bs_icon("sliders", class = "me-1"), "Vista previa — Predictores X"),
+            div(style = "overflow-x: auto; font-size: 0.82rem;",
+                renderTable(
+                  X[seq_len(min(6, nrow(X))), , drop = FALSE],
+                  rownames = TRUE
+                )
+            )
+          )
         }
       )
     })
 
-
-    # ================================================================
-    # DATA PREVIEW (both modes)
-    # ================================================================
+    # ════════════════════════════════════════════════════════════════════════
+    # DATOS ACTIVOS — compartidos con otros módulos
+    # ════════════════════════════════════════════════════════════════════════
 
     active_data <- reactive({
-      if (input$data_source == "example") {
-        example_data()
-      } else {
+      # Determinar pestaña activa por si hay file_Y cargado
+      if (!is.null(input$file_Y)) {
         v <- validation()
         if (!v$ok || is.null(raw_Y())) return(NULL)
         list(
@@ -411,51 +501,22 @@ mod_upload_server <- function(id) {
           X      = processed_X(),
           traits = raw_traits(),
           meta   = list(
-            name     = "User data",
-            response = "unknown",
-            n_sites  = nrow(raw_Y()),
-            n_species = ncol(raw_Y()),
-            n_predictors = if (is.null(processed_X())) 0 else ncol(processed_X())
+            name         = "Datos propios",
+            response     = "desconocido",
+            n_sites      = nrow(raw_Y()),
+            n_species    = ncol(raw_Y()),
+            n_predictors = if (is.null(processed_X())) 0L else ncol(processed_X()),
+            has_traits   = !is.null(raw_traits())
           ),
           source = "user"
         )
+      } else {
+        example_data()
       }
     })
-
-    output$data_preview <- renderUI({
-      d <- active_data()
-      req(d)
-
-      # Show first 6 rows / 8 cols of Y
-      Y_show <- d$Y[seq_len(min(6, nrow(d$Y))),
-                    seq_len(min(8, ncol(d$Y))),
-                    drop = FALSE]
-
-      tagList(
-        tags$h6("Preview: species matrix (Y)"),
-        div(class = "table-responsive",
-            renderTable(Y_show, rownames = TRUE, digits = 0)
-        ),
-        if (!is.null(d$X)) {
-          X_show <- d$X[seq_len(min(6, nrow(d$X))), , drop = FALSE]
-          tagList(
-            tags$h6("Preview: predictors (X)"),
-            div(class = "table-responsive",
-                renderTable(X_show, rownames = TRUE))
-          )
-        }
-      )
-    })
-
-
-    # ================================================================
-    # RETURN — reactive data accessible by other modules
-    # ================================================================
 
     return(reactive(active_data()))
   })
 }
 
-
-# ---- Utility ----
 `%||%` <- function(x, y) if (is.null(x)) y else x
