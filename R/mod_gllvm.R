@@ -1248,7 +1248,7 @@ mod_gllvm_server <- function(id, data) {
         ggplot2::labs(x = "Número de factores latentes (d)",
              y = criterio,
              subtitle = paste("Menor", criterio, "→ mejor ajuste")) +
-        ggplot2::theme_minimal(base_size = 12) +
+        ggplot2::theme_light(base_size = 12) +
         ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
               plot.subtitle = ggplot2::element_text(color = colores$texto, size = 9))
     }, res = 96)
@@ -1524,7 +1524,7 @@ mod_gllvm_server <- function(id, data) {
             x     = "Especie",
             y     = "Proporción de varianza"
           ) +
-          ggplot2::theme_minimal(base_size = 11) +
+          ggplot2::theme_light(base_size = 11) +
           ggplot2::theme(
             axis.text.x     = ggplot2::element_text(angle = 45, hjust = 1, size = 9),
             legend.position = "right",
@@ -1743,7 +1743,7 @@ mod_gllvm_server <- function(id, data) {
             ggplot2::labs(x = "Intercepto (β₀)", y = NULL,
                  title = "Interceptos por especie",
                  subtitle = "Refleja la abundancia/detectabilidad media de cada especie") +
-            ggplot2::theme_minimal(base_size = 11) +
+            ggplot2::theme_light(base_size = 11) +
             ggplot2::theme(axis.text.y = ggplot2::element_text(size = 8))
         } else {
           # Coeficientes de covariables
@@ -2020,7 +2020,7 @@ mod_gllvm_server <- function(id, data) {
           x     = NULL,
           y     = "Correlación"
         ) +
-        ggplot2::theme_minimal(base_size = 11) +
+        ggplot2::theme_light(base_size = 11) +
         ggplot2::theme(
           plot.title = ggplot2::element_text(
             color = colores$primario, face = "bold", size = 11)

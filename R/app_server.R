@@ -8,6 +8,7 @@ app_server <- function(input, output, session) {
   app_data <- mod_upload_server("upload")
 
   mod_gllvm_server("gllvm", data = app_data)
+  mod_mrIML_server("mrIML", data = app_data)
   mod_acerca_de_server("acerca_de")
 
   # Módulos futuros — reciben app_data como argumento:

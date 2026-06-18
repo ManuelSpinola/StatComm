@@ -44,16 +44,17 @@ app_ui <- function() {
         mod_gllvm_ui("gllvm")
       ),
 
+      bslib::nav_panel(
+        title = "mrIML",
+        icon  = bsicons::bs_icon("robot"),
+        mod_mrIML_ui("mrIML")
+      ),
+
       # Módulos futuros — descomentar cuando estén listos:
       # bslib::nav_panel(
       #   title = "Exploración",
       #   icon  = bsicons::bs_icon("bar-chart-steps"),
       #   mod_explore_ui("explore")
-      # ),
-      # bslib::nav_panel(
-      #   title = "mrIML",
-      #   icon  = bsicons::bs_icon("robot"),
-      #   mod_mrIML_ui("mrIML")
       # ),
       # bslib::nav_panel(
       #   title = "Beta diversidad",
