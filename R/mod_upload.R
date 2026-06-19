@@ -162,7 +162,8 @@ mod_upload_ui <- function(id) {
                   accept      = c(".csv", ".xlsx", ".xls"),
                   placeholder = "Sin archivo"
                 ),
-                uiOutput(ns("status_traits"))
+                uiOutput(ns("status_traits")),
+                uiOutput(ns("factor_selector_traits"))
               )
             )
           ),
@@ -249,11 +250,7 @@ mod_upload_server <- function(id) {
                style = paste0("color:", colores$primario),
                bs_icon("table", class = "me-1"), "Vista previa — Matriz Y"),
         div(style = "overflow-x: auto; font-size: 0.82rem;",
-            renderTable(
-              obj$Y[seq_len(min(6, nrow(obj$Y))),
-                    seq_len(min(8, ncol(obj$Y))), drop = FALSE],
-              rownames = TRUE, digits = 0
-            )
+            tableOutput(ns("prev_ej_Y"))
         ),
         if (!is.null(obj$X)) {
           tagList(
@@ -261,10 +258,7 @@ mod_upload_server <- function(id) {
                    style = paste0("color:", colores$primario),
                    bs_icon("sliders", class = "me-1"), "Vista previa — Predictores X"),
             div(style = "overflow-x: auto; font-size: 0.82rem;",
-                renderTable(
-                  obj$X[seq_len(min(6, nrow(obj$X))), , drop = FALSE],
-                  rownames = TRUE
-                )
+                tableOutput(ns("prev_ej_X"))
             )
           )
         },
@@ -274,16 +268,32 @@ mod_upload_server <- function(id) {
                    style = paste0("color:", colores$primario),
                    bs_icon("diagram-3", class = "me-1"), "Vista previa — Traits"),
             div(style = "overflow-x: auto; font-size: 0.82rem;",
-                renderTable(
-                  obj$traits[seq_len(min(6, nrow(obj$traits))),
-                             seq_len(min(6, ncol(obj$traits))), drop = FALSE],
-                  rownames = TRUE
-                )
+                tableOutput(ns("prev_ej_traits"))
             )
           )
         }
       )
     })
+
+    output$prev_ej_Y <- renderTable({
+      obj <- example_data()
+      req(obj)
+      obj$Y[seq_len(min(6, nrow(obj$Y))),
+            seq_len(min(8, ncol(obj$Y))), drop = FALSE]
+    }, rownames = TRUE, digits = 0)
+
+    output$prev_ej_X <- renderTable({
+      obj <- example_data()
+      req(obj, obj$X)
+      obj$X[seq_len(min(6, nrow(obj$X))), , drop = FALSE]
+    }, rownames = TRUE)
+
+    output$prev_ej_traits <- renderTable({
+      obj <- example_data()
+      req(obj, obj$traits)
+      obj$traits[seq_len(min(6, nrow(obj$traits))),
+                 seq_len(min(6, ncol(obj$traits))), drop = FALSE]
+    }, rownames = TRUE)
 
 
     # ════════════════════════════════════════════════════════════════════════
@@ -358,6 +368,38 @@ mod_upload_server <- function(id) {
       X
     })
 
+    # ── Factor selector traits ───────────────────────────────────────────────
+    output$factor_selector_traits <- renderUI({
+      tr <- raw_traits()
+      req(tr)
+      auto     <- names(which(auto_detect_factors(tr)))
+      non_auto <- names(tr)[!names(tr) %in% auto]
+      if (length(non_auto) == 0) return(NULL)
+      tagList(
+        tags$p(class = "small text-muted mt-2 mb-1",
+               tags$b("Factores auto-detectados: "),
+               if (length(auto) > 0) paste(auto, collapse = ", ") else "ninguno"),
+        checkboxGroupInput(
+          inputId  = ns("extra_factors_traits"),
+          label    = "Convertir a factor:",
+          choices  = non_auto,
+          selected = NULL,
+          inline   = TRUE
+        )
+      )
+    })
+
+    processed_traits <- reactive({
+      tr <- raw_traits()
+      req(tr)
+      auto   <- names(which(auto_detect_factors(tr)))
+      manual <- input$extra_factors_traits %||% character(0)
+      for (col in unique(c(auto, manual))) {
+        if (col %in% names(tr)) tr[[col]] <- factor(tr[[col]])
+      }
+      tr
+    })
+
     # ── Status widgets ────────────────────────────────────────────────────────
     status_ok <- function(df, label) {
       if (is.null(df)) return(NULL)
@@ -369,9 +411,49 @@ mod_upload_server <- function(id) {
       )
     }
 
-    output$status_Y      <- renderUI(status_ok(raw_Y(),       "Y"))
-    output$status_X      <- renderUI(status_ok(processed_X(), "X"))
-    output$status_traits <- renderUI(status_ok(raw_traits(),  "Traits"))
+    output$status_Y <- renderUI(status_ok(raw_Y(), "Y"))
+
+    output$status_traits <- renderUI({
+      tr <- processed_traits()
+      if (is.null(tr)) return(NULL)
+      tagList(
+        status_ok(tr, "Traits"),
+        div(
+          class = "d-flex flex-wrap gap-1 mt-2",
+          lapply(names(tr), function(nm) {
+            es_factor <- is.factor(tr[[nm]]) || is.character(tr[[nm]])
+            tags$span(
+              class = "badge",
+              style = paste0("background:",
+                if (es_factor) colores$acento else colores$primario,
+                "; font-size:0.72rem;"),
+              paste0(nm, if (es_factor) " (F)" else " (N)")
+            )
+          })
+        )
+      )
+    })
+
+    output$status_X <- renderUI({
+      X <- processed_X()
+      if (is.null(X)) return(NULL)
+      tagList(
+        status_ok(X, "X"),
+        div(
+          class = "d-flex flex-wrap gap-1 mt-2",
+          lapply(names(X), function(nm) {
+            es_factor <- is.factor(X[[nm]]) || is.character(X[[nm]])
+            tags$span(
+              class = "badge",
+              style = paste0("background:",
+                if (es_factor) colores$acento else colores$primario,
+                "; font-size:0.72rem;"),
+              paste0(nm, if (es_factor) " (F)" else " (N)")
+            )
+          })
+        )
+      )
+    })
 
     # ── Validación ────────────────────────────────────────────────────────────
     validation <- reactive({
@@ -458,34 +540,40 @@ mod_upload_server <- function(id) {
     output$preview_usuario <- renderUI({
       v <- validation()
       req(v$ok, raw_Y())
-      Y <- raw_Y()
       tagList(
         tags$hr(),
         tags$p(class = "fw-semibold small mb-1",
                style = paste0("color:", colores$primario),
                bs_icon("table", class = "me-1"), "Vista previa — Matriz Y"),
         div(style = "overflow-x: auto; font-size: 0.82rem;",
-            renderTable(
-              Y[seq_len(min(6, nrow(Y))), seq_len(min(8, ncol(Y))), drop = FALSE],
-              rownames = TRUE, digits = 0
-            )
+            tableOutput(ns("prev_usr_Y"))
         ),
         if (!is.null(processed_X())) {
-          X <- processed_X()
           tagList(
             tags$p(class = "fw-semibold small mb-1 mt-3",
                    style = paste0("color:", colores$primario),
                    bs_icon("sliders", class = "me-1"), "Vista previa — Predictores X"),
             div(style = "overflow-x: auto; font-size: 0.82rem;",
-                renderTable(
-                  X[seq_len(min(6, nrow(X))), , drop = FALSE],
-                  rownames = TRUE
-                )
+                tableOutput(ns("prev_usr_X"))
             )
           )
         }
       )
     })
+
+    output$prev_usr_Y <- renderTable({
+      v <- validation()
+      req(v$ok, raw_Y())
+      Y <- raw_Y()
+      Y[seq_len(min(6, nrow(Y))), seq_len(min(8, ncol(Y))), drop = FALSE]
+    }, rownames = TRUE, digits = 0)
+
+    output$prev_usr_X <- renderTable({
+      v <- validation()
+      req(v$ok, processed_X())
+      X <- processed_X()
+      X[seq_len(min(6, nrow(X))), , drop = FALSE]
+    }, rownames = TRUE)
 
     # ════════════════════════════════════════════════════════════════════════
     # DATOS ACTIVOS — compartidos con otros módulos
@@ -499,7 +587,7 @@ mod_upload_server <- function(id) {
         list(
           Y      = raw_Y(),
           X      = processed_X(),
-          traits = raw_traits(),
+          traits = processed_traits(),
           meta   = list(
             name         = "Datos propios",
             response     = "desconocido",
