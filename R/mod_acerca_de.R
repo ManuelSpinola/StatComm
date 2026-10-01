@@ -107,6 +107,9 @@ mod_acerca_de_ui <- function(id) {
         )
       ),
 
+      # Cómo citar (datos tomados de DESCRIPTION; ver utils_cita.R)
+      tarjeta_cita("StatComm", ns),
+
       div(
         class = "alert alert-info small mt-3 mb-0",
         bs_icon("envelope", class = "me-1"),

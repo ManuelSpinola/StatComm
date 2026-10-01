@@ -1,5 +1,5 @@
 Package: StatComm
-Title: Multivariate Community Ecology Analysis
+Title: Análisis multivariado de comunidades ecológicas
 Version: 0.1.0
 Authors@R: 
     person(given = "Manuel",
@@ -47,3 +47,5 @@ Suggests:
 Encoding: UTF-8
 LazyData: false
 RoxygenNote: 7.3.2
+Date: 2026-10-01
+URL: https://019ed5a2-55a2-942c-8ec1-48964d48ce65.share.connect.posit.cloud/

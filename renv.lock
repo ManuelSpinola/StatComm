@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.6.0",
+    "Version": "4.6.1",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -200,10 +200,10 @@
     },
     "KernSmooth": {
       "Package": "KernSmooth",
-      "Version": "2.23-26",
+      "Version": "2.23-27",
       "Source": "Repository",
       "Priority": "recommended",
-      "Date": "2024-12-10",
+      "Date": "2026-08-11",
       "Title": "Functions for Kernel Smoothing Supporting Wand & Jones (1995)",
       "Authors@R": "c(person(\"Matt\", \"Wand\", role = \"aut\", email = \"Matt.Wand@uts.edu.au\"), person(\"Cleve\", \"Moler\", role = \"ctb\", comment = \"LINPACK routines in src/d*\"), person(\"Brian\", \"Ripley\", role = c(\"trl\", \"cre\", \"ctb\"), email = \"Brian.Ripley@R-project.org\", comment = \"R port and updates\"))",
       "Note": "Maintainers are not available to give advice on using a package they did not author.",
@@ -1019,16 +1019,16 @@
     },
     "class": {
       "Package": "class",
-      "Version": "7.3-23",
+      "Version": "7.3-24",
       "Source": "Repository",
       "Priority": "recommended",
-      "Date": "2025-01-01",
+      "Date": "2026-08-01",
       "Depends": [
         "R (>= 3.0.0)",
         "stats",
         "utils"
       ],
-      "Imports": [
+      "Suggests": [
         "MASS"
       ],
       "Authors@R": "c(person(\"Brian\", \"Ripley\", role = c(\"aut\", \"cre\", \"cph\"), email = \"Brian.Ripley@R-project.org\"), person(\"William\", \"Venables\", role = \"cph\"))",
@@ -4215,10 +4215,10 @@
     },
     "nnet": {
       "Package": "nnet",
-      "Version": "7.3-20",
+      "Version": "7.3-21",
       "Source": "Repository",
       "Priority": "recommended",
-      "Date": "2025-01-01",
+      "Date": "2026-08-01",
       "Depends": [
         "R (>= 3.0.0)",
         "stats",
@@ -6266,13 +6266,13 @@
     },
     "survival": {
       "Package": "survival",
-      "Version": "3.8-6",
+      "Version": "3.8-11",
       "Source": "Repository",
       "Title": "Survival Analysis",
       "Priority": "recommended",
-      "Date": "2026-01-09",
+      "Date": "2026-08-15",
       "Depends": [
-        "R (>= 3.5.0)"
+        "R (>= 4.1.0)"
       ],
       "Imports": [
         "graphics",
@@ -6285,13 +6285,13 @@
       "LazyData": "Yes",
       "LazyDataCompression": "xz",
       "ByteCompile": "Yes",
-      "Authors@R": "c(person(c(\"Terry\", \"M\"), \"Therneau\", email=\"therneau.terry@mayo.edu\", role=c(\"aut\", \"cre\")), person(\"Thomas\", \"Lumley\", role=c(\"ctb\", \"trl\"), comment=\"original S->R port and R maintainer until 2009\"), person(\"Atkinson\", \"Elizabeth\", role=\"ctb\"), person(\"Crowson\", \"Cynthia\", role=\"ctb\"))",
+      "Authors@R": "c(person(c(\"Terry\", \"M\"), \"Therneau\", email=\"terry.therneau@proton.me\", role=c(\"aut\", \"cre\")), person(\"Thomas\", \"Lumley\", role=c(\"ctb\", \"trl\"), comment=\"original S->R port and R maintainer until 2009\"), person(\"Atkinson\", \"Elizabeth\", role=\"ctb\"), person(\"Crowson\", \"Cynthia\", role=\"ctb\"))",
       "Description": "Contains the core survival analysis routines, including definition of Surv objects,  Kaplan-Meier and Aalen-Johansen (multi-state) curves, Cox models, and parametric accelerated failure time models.",
       "License": "LGPL (>= 2)",
       "URL": "https://github.com/therneau/survival",
       "NeedsCompilation": "yes",
       "Author": "Terry M Therneau [aut, cre], Thomas Lumley [ctb, trl] (original S->R port and R maintainer until 2009), Atkinson Elizabeth [ctb], Crowson Cynthia [ctb]",
-      "Maintainer": "Terry M Therneau <therneau.terry@mayo.edu>",
+      "Maintainer": "Terry M Therneau <terry.therneau@proton.me>",
       "Repository": "CRAN"
     },
     "sys": {

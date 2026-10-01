@@ -1,7 +1,7 @@
 {
   "version": 1,
   "locale": "en_US",
-  "platform": "4.6.0",
+  "platform": "4.6.1",
   "metadata": {
     "appmode": "shiny",
     "primary_rmd": null,
@@ -183,8 +183,8 @@
       "description": {
         "Package": "KernSmooth",
         "Priority": "recommended",
-        "Version": "2.23-26",
-        "Date": "2024-12-10",
+        "Version": "2.23-27",
+        "Date": "2026-08-11",
         "Title": "Functions for Kernel Smoothing Supporting Wand & Jones (1995)",
         "Authors@R": "c(person(\"Matt\", \"Wand\", role = \"aut\",\n\t             email = \"Matt.Wand@uts.edu.au\"),\n\t     person(\"Cleve\", \"Moler\", role = \"ctb\",\n\t            comment = \"LINPACK routines in src/d*\"),\n             person(\"Brian\", \"Ripley\", role = c(\"trl\", \"cre\", \"ctb\"),\n                    email = \"Brian.Ripley@R-project.org\",\n\t\t    comment = \"R port and updates\"))",
         "Note": "Maintainers are not available to give advice on using a package\nthey did not author.",
@@ -194,12 +194,13 @@
         "License": "Unlimited",
         "ByteCompile": "yes",
         "NeedsCompilation": "yes",
-        "Packaged": "2024-12-10 15:33:25 UTC; ripley",
+        "Packaged": "2026-08-11 18:25:17 UTC; ripley",
         "Author": "Matt Wand [aut],\n  Cleve Moler [ctb] (LINPACK routines in src/d*),\n  Brian Ripley [trl, cre, ctb] (R port and updates)",
         "Maintainer": "Brian Ripley <Brian.Ripley@R-project.org>",
         "Repository": "CRAN",
-        "Date/Publication": "2025-01-01 10:25:36 UTC",
-        "Built": "R 4.6.0; aarch64-apple-darwin23; 2026-04-25 08:58:51 UTC; unix"
+        "Date/Publication": "2026-08-12 06:40:09 UTC",
+        "Built": "R 4.6.1; aarch64-apple-darwin23; 2026-08-12 07:00:40 UTC; unix",
+        "Archs": "KernSmooth.so.dSYM"
       }
     },
     "MASS": {
@@ -811,7 +812,7 @@
         "Author": "Angelo Canty [aut] (author of original code for S),\n  Brian Ripley [aut, trl] (conversion to R, maintainer 1999--2022, author\n    of parallel support),\n  Alessandra R. Brazzale [ctb, cre] (minor bug fixes)",
         "Repository": "CRAN",
         "Date/Publication": "2025-08-29 13:00:08 UTC",
-        "Built": "R 4.6.0; ; 2026-04-25 08:59:26 UTC; unix"
+        "Built": "R 4.6.1; ; 2026-06-25 21:54:42 UTC; unix"
       }
     },
     "bsicons": {
@@ -991,10 +992,10 @@
       "description": {
         "Package": "class",
         "Priority": "recommended",
-        "Version": "7.3-23",
-        "Date": "2025-01-01",
+        "Version": "7.3-24",
+        "Date": "2026-08-01",
         "Depends": "R (>= 3.0.0), stats, utils",
-        "Imports": "MASS",
+        "Suggests": "MASS",
         "Authors@R": "c(person(\"Brian\", \"Ripley\", role = c(\"aut\", \"cre\", \"cph\"),\n                    email = \"Brian.Ripley@R-project.org\"),\n             person(\"William\", \"Venables\", role = \"cph\"))",
         "Description": "Various functions for classification, including k-nearest\n  neighbour, Learning Vector Quantization and Self-Organizing Maps.",
         "Title": "Functions for Classification",
@@ -1002,12 +1003,13 @@
         "License": "GPL-2 | GPL-3",
         "URL": "http://www.stats.ox.ac.uk/pub/MASS4/",
         "NeedsCompilation": "yes",
-        "Packaged": "2025-01-01 07:07:13 UTC; ripley",
+        "Packaged": "2026-08-03 06:32:26 UTC; ripley",
         "Author": "Brian Ripley [aut, cre, cph],\n  William Venables [cph]",
         "Maintainer": "Brian Ripley <Brian.Ripley@R-project.org>",
         "Repository": "CRAN",
-        "Date/Publication": "2025-01-01 10:25:33 UTC",
-        "Built": "R 4.6.0; aarch64-apple-darwin23; 2026-04-25 08:58:54 UTC; unix"
+        "Date/Publication": "2026-08-03 09:45:09 UTC",
+        "Built": "R 4.6.1; aarch64-apple-darwin23; 2026-08-03 13:53:56 UTC; unix",
+        "Archs": "class.so.dSYM"
       }
     },
     "cli": {
@@ -3881,8 +3883,8 @@
       "description": {
         "Package": "nnet",
         "Priority": "recommended",
-        "Version": "7.3-20",
-        "Date": "2025-01-01",
+        "Version": "7.3-21",
+        "Date": "2026-08-01",
         "Depends": "R (>= 3.0.0), stats, utils",
         "Suggests": "MASS",
         "Authors@R": "c(person(\"Brian\", \"Ripley\", role = c(\"aut\", \"cre\", \"cph\"),\n                    email = \"Brian.Ripley@R-project.org\"),\n             person(\"William\", \"Venables\", role = \"cph\"))",
@@ -3892,12 +3894,13 @@
         "License": "GPL-2 | GPL-3",
         "URL": "http://www.stats.ox.ac.uk/pub/MASS4/",
         "NeedsCompilation": "yes",
-        "Packaged": "2025-01-01 07:07:13 UTC; ripley",
+        "Packaged": "2026-08-03 06:32:27 UTC; ripley",
         "Author": "Brian Ripley [aut, cre, cph],\n  William Venables [cph]",
         "Maintainer": "Brian Ripley <Brian.Ripley@R-project.org>",
         "Repository": "CRAN",
-        "Date/Publication": "2025-01-01 10:25:43 UTC",
-        "Built": "R 4.6.0; aarch64-apple-darwin23; 2026-04-25 08:58:51 UTC; unix"
+        "Date/Publication": "2026-08-03 09:45:14 UTC",
+        "Built": "R 4.6.1; aarch64-apple-darwin23; 2026-08-03 13:53:56 UTC; unix",
+        "Archs": "nnet.so.dSYM"
       }
     },
     "numDeriv": {
@@ -5036,7 +5039,7 @@
         "BugReports": "https://github.com/bethatkinson/rpart/issues",
         "Packaged": "2026-03-26 15:46:48 UTC; atkinson",
         "Date/Publication": "2026-03-27 06:10:02 UTC",
-        "Built": "R 4.6.0; aarch64-apple-darwin23; 2026-04-25 08:58:51 UTC; unix"
+        "Built": "R 4.6.1; aarch64-apple-darwin23; 2026-06-25 21:54:07 UTC; unix"
       }
     },
     "rpart.plot": {
@@ -5646,24 +5649,25 @@
         "Title": "Survival Analysis",
         "Priority": "recommended",
         "Package": "survival",
-        "Version": "3.8-6",
-        "Date": "2026-01-09",
-        "Depends": "R (>= 3.5.0)",
+        "Version": "3.8-11",
+        "Date": "2026-08-15",
+        "Depends": "R (>= 4.1.0)",
         "Imports": "graphics, Matrix, methods, splines, stats, utils",
         "LazyData": "Yes",
         "LazyDataCompression": "xz",
         "ByteCompile": "Yes",
-        "Authors@R": "c(person(c(\"Terry\", \"M\"), \"Therneau\",\n                    email=\"therneau.terry@mayo.edu\",\n\t            role=c(\"aut\", \"cre\")),\n               person(\"Thomas\", \"Lumley\", role=c(\"ctb\", \"trl\"),\n\t       comment=\"original S->R port and R maintainer until 2009\"),\n\t       person(\"Atkinson\", \"Elizabeth\", role=\"ctb\"),\n\t       person(\"Crowson\", \"Cynthia\", role=\"ctb\"))",
+        "Authors@R": "c(person(c(\"Terry\", \"M\"), \"Therneau\",\n                    email=\"terry.therneau@proton.me\",\n\t            role=c(\"aut\", \"cre\")),\n               person(\"Thomas\", \"Lumley\", role=c(\"ctb\", \"trl\"),\n\t       comment=\"original S->R port and R maintainer until 2009\"),\n\t       person(\"Atkinson\", \"Elizabeth\", role=\"ctb\"),\n\t       person(\"Crowson\", \"Cynthia\", role=\"ctb\"))",
         "Description": "Contains the core survival analysis routines, including\n\t     definition of Surv objects, \n\t     Kaplan-Meier and Aalen-Johansen (multi-state) curves, Cox models,\n\t     and parametric accelerated failure time models.",
         "License": "LGPL (>= 2)",
         "URL": "https://github.com/therneau/survival",
         "NeedsCompilation": "yes",
-        "Packaged": "2026-01-13 02:06:39 UTC; therneau",
+        "Packaged": "2026-08-16 11:47:23 UTC; therneau",
         "Author": "Terry M Therneau [aut, cre],\n  Thomas Lumley [ctb, trl] (original S->R port and R maintainer until\n    2009),\n  Atkinson Elizabeth [ctb],\n  Crowson Cynthia [ctb]",
-        "Maintainer": "Terry M Therneau <therneau.terry@mayo.edu>",
+        "Maintainer": "Terry M Therneau <terry.therneau@proton.me>",
         "Repository": "CRAN",
-        "Date/Publication": "2026-01-16 09:00:02 UTC",
-        "Built": "R 4.6.0; aarch64-apple-darwin23; 2026-04-25 08:59:17 UTC; unix"
+        "Date/Publication": "2026-08-21 13:10:11 UTC",
+        "Built": "R 4.6.1; aarch64-apple-darwin23; 2026-08-21 14:37:40 UTC; unix",
+        "Archs": "survival.so.dSYM"
       }
     },
     "sys": {
@@ -6507,10 +6511,10 @@
       "checksum": "d41d8cd98f00b204e9800998ecf8427e"
     },
     ".Rbuildignore": {
-      "checksum": "6afa2008bb4d9aef319749bd1ae9a99c"
+      "checksum": "97a037315be83f6eb3e26df5dcf1505e"
     },
     ".Rprofile": {
-      "checksum": "e9a69c740fb9293d0c4891c3ff85192f"
+      "checksum": "9b93ed9ec3c194ecff9a1cc0acbf520d"
     },
     "app.R": {
       "checksum": "3141a73401b7e235f76f80ed2664c285"
@@ -6519,7 +6523,7 @@
       "checksum": "e4db50e6ed9a374d5066350edf66571d"
     },
     "DESCRIPTION": {
-      "checksum": "dd167c842b441e60fbf0d61c5ff86c92"
+      "checksum": "2022a1ba59817c4dd141fc56c4bc4cad"
     },
     "dev/01_start.R": {
       "checksum": "4cba71286ebde2df1411a7b55f545de7"
@@ -6591,7 +6595,7 @@
       "checksum": "8fdc306a261d8732d4bcdfb659dbf3c9"
     },
     "R/mod_acerca_de.R": {
-      "checksum": "cc737df8246bc14bec5e13434335125d"
+      "checksum": "3cb39f4a54e947a7848c6782a7714822"
     },
     "R/mod_gllvm.R": {
       "checksum": "39f7c990e6adb3ba34fc1b7ae9d7b7f7"
@@ -6600,7 +6604,7 @@
       "checksum": "9669adff11bc90af98a432751ad8d754"
     },
     "R/mod_upload.R": {
-      "checksum": "ab27a2927b9a2f868eee009d2929fd82"
+      "checksum": "aa4c2a8776555e2924788efa7951422c"
     },
     "R/run_app.R": {
       "checksum": "1a34ce217a08dc8c03d82f37922f9860"
@@ -6608,11 +6612,14 @@
     "R/StatComm-package.R": {
       "checksum": "3db7b31a41d4e62743e9108afbff6749"
     },
+    "R/utils_cita.R": {
+      "checksum": "b35cca3d940bb06ea33acc4333630cbf"
+    },
     "README.md": {
       "checksum": "109601057fa1156a070fb88e0e4e5c81"
     },
     "renv.lock": {
-      "checksum": "2024dd9ecebf0c2be2fb1add522d9714"
+      "checksum": "7fb4152a69ca647910e5f53e33579176"
     }
   },
   "users": null
